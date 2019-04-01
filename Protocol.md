@@ -177,8 +177,7 @@ RSocket implementations may provide their own validation at the metadata level f
 
 Specific Frame Types MAY contain Metadata. If that Frame Type supports both Data and Metadata, the optional Metadata header MUST be included. This metadata header is between the Frame Header and any payload.
 
-Metadata Length MUST be less than or equal to the Frame Length minus the length of the Frame Header.
-If Metadata Length is greater than this value, the entire frame MUST be ignored.
+Metadata Length MUST be equal to the Frame Length minus the sum of the length of the Frame Header and the length of the Frame Payload, if present. If Metadata Length is not equal to this value, the frame is invalid and the receiver MUST send an ERROR[CONNECTION_ERROR] frame and close the underlying transport connection on reception unless the frame's IGNORE flag is set.
 
 On a frame with Data and Metadata:
 
@@ -400,7 +399,7 @@ For example:
 
 - ERROR[INVALID_SETUP] means the ERROR frame with the INVALID_SETUP code
 - ERROR[REJECTED] means the ERROR frame with the REJECTED code
-- ERROR[CONNECTION_ERROR|REJECTED_RESUME] means the ERROR frame either either the CONNECTION_ERROR or REJECTED_RESUME code
+- ERROR[CONNECTION_ERROR|REJECTED_RESUME] means the ERROR frame with either the CONNECTION_ERROR or REJECTED_RESUME code
 
 <a name="frame-lease"></a>
 ### LEASE Frame (0x02)
@@ -886,10 +885,6 @@ immediately upon receiving a SETUP frame that it accepts if the __L__ flag is no
 If the server does NOT accept the contents of the SETUP frame, the server MUST send
 back an ERROR[INVALID_SETUP|UNSUPPORTED_SETUP] and then close the connection.
 
-The __S__ flag of the SETUP indicates the client requires the server to adhere to strict interpretation
-of the Data and Metadata of the SETUP. Anything in the Data and/or Metadata that is not understood or can
-be provided by the server should require the SETUP to be rejected.
-
 The server-side Requester mirrors the LEASE requests of the client-side Requester. If a client-side
 Requester sets the __L__ flag in the SETUP frame, the server-side Requester MUST wait for a LEASE
 frame from the client-side Responder before it can send a request. The client-side Responder MUST
@@ -958,7 +953,7 @@ When a PAYLOAD frame needs to be fragmented, a sequence of PAYLOAD frames is del
 
 When a PAYLOAD is fragmented, the Metadata MUST be transmitted completely before the Data. 
 
-For example, a single PAYLOAD with 20MB of Metdata and 25MB of Data that is fragmented into 3 frames:
+For example, a single PAYLOAD with 20MB of Metadata and 25MB of Data that is fragmented into 3 frames:
 
 ```
 -- PAYLOAD frame 1
@@ -996,7 +991,7 @@ When REQUEST_RESPONSE, REQUEST_FNF, REQUEST_STREAM, or REQUEST_CHANNEL frames ne
 
 When fragmented, the Metadata MUST be transmitted completely before the Data. 
 
-For example, a single PAYLOAD with 20MB of Metdata and 25MB of Data that is fragmented into 3 frames:
+For example, a single PAYLOAD with 20MB of Metadata and 25MB of Data that is fragmented into 3 frames:
 
 ```
 -- REQUEST_RESPONSE frame 1
@@ -1221,7 +1216,7 @@ e.g. here's an example of a successful stream call with flow-control.
 <a name="flow-control-lease"></a>
 #### Lease Semantics
 
-The LEASE semantics are to control the number of indivdiual requests (all types) that a Requester may send in a given period.
+The LEASE semantics are to control the number of individual requests (all types) that a Requester may send in a given period.
 The only responsibility the protocol implementation has for the LEASE is to honor it on the Requester side. The Responder application
 is responsible for the logic of generation and informing the Responder it should send a LEASE to the peer Requester.
 
