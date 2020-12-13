@@ -216,7 +216,7 @@ On a frame that only has Metadata, the Metadata length field is NOT needed:
 ```
 
 
-* __Metadata Length__: (24 bits = max value 16,777,215) Unsigned 24-bit integer representing the length of Metadata in bytes. Excluding Metadata Length field.
+* __Metadata Length__: (24 bits = max value 2^24-1 = 16,777,215) Unsigned 24-bit integer representing the length of Metadata in bytes. Excluding Metadata Length field.
 
 <a name="stream-identifiers"></a>
 ### Stream Identifiers
@@ -1228,8 +1228,10 @@ A Responder that receives a REQUEST that it can not honor due to LEASE restricti
 <a name="flow-control-qos"></a>
 #### QoS and Prioritization
 
-Quality of Service and Prioritization of streams are considered application or network layer concerns and are better dealt with
-at those layers. The metadata capabilities, including METADATA_PUSH, are tools that applications can use for effective prioritization.
+Quality of Service and Prioritization of streams are considered application or network layer concerns and are better dealt with at those layers. The metadata capabilities, including METADATA_PUSH, are tools that applications can use for effective prioritization.
+
+Within a single stream, the frames have to be processed in order, but this is not the case between different streams. Frames with *Stream ID 0* **SHOULD** have a higher priority (*this is implementation specific*), since all those frames may impact the performance of the system.
+
 DiffServ via IP QoS are best handled by the underlying network layer protocols.
 
 ### Handling the Unexpected

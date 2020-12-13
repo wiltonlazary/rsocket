@@ -26,5 +26,5 @@ This metadata type is intended to be used per stream, and not per connection nor
 ```
 
 * **Tag Payload**: Any number of complete tag payloads.
-  * **Tag Length**: Tag Length in bytes.
-  * **Tag**:  Token used for routing.  The string MUST NOT be null terminated.  Examples include URI-style routes (`/person`, `/address`), or artibrary metadata (`ios-client`, `android-client`).
+  * **Tag Length**: (8 bits = max value 2^8-1 = 255) Unsigned 8-bit integer of Tag Length in bytes.
+  * **Tag**:  UTF-8 encoded Token used for routing.  The string MUST NOT be null terminated.  Examples include URI path-style routes (`/person/1`, `/address`), dot-separated convention ("person.1"), or any other format (`ios-client`, `android-client`).
